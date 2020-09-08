@@ -13,6 +13,7 @@ const execProc = require('child_process').execFile
 const rootPath = require('electron-root-path').rootPath
 
 /**sftp */
+
 var conSettings = {
   host      :config.sftp.host,
   port      :config.sftp.port,
