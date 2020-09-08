@@ -1,10 +1,9 @@
-const {app, BrowserWindow,Menu,ipcMain,Tray,shell} = require('electron')
+const {app, BrowserWindow,Menu,ipcMain,Tray,shell,dialog} = require('electron')
 
 const path = require('path')
 const fs = require('fs')
 const utils = require('./utils.js')
 let config = require('./config.js')
-const { dialog } = require('electron')
 const { title } = require('process')
 const child = require('child_process').execFileSync
 const spawnProc = require('child_process').spawn
@@ -61,10 +60,26 @@ function createWindow () {
       nodeIntegration: true
     }
   })
+  mainWindow.on('close', function(e) { //   <---- Catch close event
+    //e.preventDefault()
+    let closeresult = dialog.showMessageBoxSync({
+      type: 'info',
+      title: 'Attention',
+      defaultId: 0,
+      message: 'Are you sure you want to close it? ',
+      buttons: ['Yes','No']
+    })
+    console.log(closeresult)
+    if(closeresult == 1){
+      e.preventDefault()
+    }
+    
+   
+  });
   const mainMenu = Menu.buildFromTemplate(mainMenuTemplate)
 
- //Menu.setApplicationMenu(mainMenu)
- Menu.setApplicationMenu(null)
+ Menu.setApplicationMenu(mainMenu)
+ //Menu.setApplicationMenu(null)
 
  mainWindow.on('minimize',function(event){
     event.preventDefault();
@@ -91,11 +106,16 @@ function createWindow () {
 }
 app.whenReady().then(() => {
   createWindow()
+  //console.log('active!!!')
   
+  checkPending()
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    console.log('active!!!')
+
+   if (BrowserWindow.getAllWindows().length === 0) createWindow()
 
   })
+  
 })
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
@@ -149,6 +169,26 @@ const trayMenuTemplate = [
     
   }
 ]
+function checkPending(){
+    let pendingItems = fs.readdirSync(pendingdirectory)
+    //let txtItems = pendingItems.filter(item=>utils.getFileExtension(item) == 'txt')
+
+    let pendingVideoItems = pendingItems.filter(item=>utils.getFileExtension(item) == 'mp4')
+
+    pendingVideoItems = pendingVideoItems.map(item=>item.slice(0,item.lastIndexOf('.')))
+    console.log(pendingVideoItems)
+    pendingVideoItems.forEach(vitem => {
+      let relatedItems = pendingItems.filter(pitem=>pitem.includes(vitem))
+      console.log(relatedItems)
+
+      if(relatedItems.length != 6)
+      {
+        relatedItems.forEach(element => {
+          fs.unlinkSync(`${pendingdirectory}/${element}`)
+        });
+      }  
+    });
+}
 function gotoSelectionPage()
 {
   let info={
@@ -191,7 +231,7 @@ function getThumb(vsrc,target,callback)
       `${vsrc}`
   ],function(e,da){
 
-      let framecnt = parseInt(da)//7191
+      let framecnt = parseInt(da)
       let complexpar = `select='eq(n,6)+not(mod(max(n,6),round((${framecnt}-1)/8)))+eq(n,(${framecnt}-1))',zscale=w=${config["new-width"] / 3}:h=${config["new-width"] / 3}:f=spline36,tile=layout=3x3`
       try{
           childprocess = spawnProc(mpegPath,[
@@ -354,7 +394,7 @@ function getScreenShot(vsrc,imgpath,callback)
 
 }
 
-function getGif(vsrc,gifpath,callback)
+function getGif(vsrc,gifpath,type,callback)//type-> 0=1:1 ,1=original ratio
 {
   execProc(probePath,[
     '-v','error',
@@ -376,8 +416,17 @@ function getGif(vsrc,gifpath,callback)
     }
 
 //    let complexpar = `select='eq(n,6)+not(mod(max(n,6),round((${v}-1)/8)))+eq(n,(${v}-1))',zscale=w=320:h=-2:f=spline36,tile=layout=3x3`
-    let complexpar = `[0:v]select=${betweenline},setpts=N/FRAME_RATE/TB,zscale=w=${config["new-width"]}:h=${config["new-width"]}:filter=spline36,setsar=1/1,fps=fps=15,split[a][b];[a]palettegen=max_colors=256[p];[b][p]paletteuse=dither=bayer`
+    let complexpar
+    if(type == 0){
+      complexpar = `[0:v]select=${betweenline},setpts=N/FRAME_RATE/TB,zscale=w=${config["new-width"]}:h=${config["new-width"]}:filter=spline36,setsar=1/1,fps=fps=15,split[a][b];[a]palettegen=max_colors=256[p];[b][p]paletteuse=dither=bayer`
+    }
+    else if(type == 1)
+    {
+      complexpar = `[0:v]select=${betweenline},setpts=N/FRAME_RATE/TB,zscale=w=${config["ori-gif-width"]}:h=-2:filter=spline36,setsar=1/1,fps=fps=15,split[a][b];[a]palettegen=max_colors=256[p];[b][p]paletteuse=dither=bayer`
 
+//      complexpar = `select='eq(n,6)+not(mod(max(n,6),round((${v}-1)/8)))+eq(n,(${v}-1))',zscale=w=${config["ori-gif-width"]}:h=-2:f=spline36,tile=layout=3x3`
+    }
+    
     //let complexpar = `[0:v]select=${betweenline},setpts=N/FRAME_RATE/TB,zscale=w=ceil(iw*0.4/2)*2:h=ceil(ow/dar/2)*2:filter=spline36,setsar=1/1,fps=fps=15,split[a][b];[a]palettegen=max_colors=256[p];[b][p]paletteuse=dither=bayer`
     console.log("-----------")
     console.log(complexpar)
@@ -457,7 +506,6 @@ setInterval(async function(){
       ])
     }
   }
-//  console.log(changed)
   if(changed)
   {
     mainWindow.webContents.send('rawVideoChanged',"Ok")
@@ -516,36 +564,38 @@ setInterval(async function(){
       }else{
 
         getThumb(pendingTargetPath,pendingPrefix + '.jpg',function(){
-          getGif(pendingTargetPath,pendingPrefix + '.gif',function(){
-            getScreenShot(pendingTargetPath,`${pendingPrefix}_shot.jpg`,function(){
-            console.log('success')
+          getGif(pendingTargetPath,pendingPrefix + '.gif',0,function(){
+            getGif(pendingTargetPath,`${pendingPrefix}_origin.gif`,1,function(){
+              getScreenShot(pendingTargetPath,`${pendingPrefix}_shot.jpg`,function(){
+                console.log('success')
 
-            let saveVal = {
-              "Category"    :processingJobList[0].category,
-              "pricingTier" :processingJobList[0].pricing,
-              "Meta"        :processingJobList[0].meta
-            }
-            fs.writeFileSync(pendingPrefix + '.txt', JSON.stringify(saveVal), 'utf-8');
-            
-            //-----------upload
-            if (!fs.existsSync(uploadCatDir))
-                  fs.mkdirSync(uploadCatDir)
-            if (!fs.existsSync(uploadTitleDir))
-                  fs.mkdirSync(uploadTitleDir)
-            if (!fs.existsSync(`${uploadTitleDir}/${uploadDateDir}`))
-                  fs.mkdirSync(`${uploadTitleDir}/${uploadDateDir}`)
-            
-            
-            fs.renameSync(`${sourcePath}`,`${uploadPrefix}.mp4`)
-            fs.copyFileSync(pendingPrefix + '.txt',`${uploadPrefix}.txt`)
-            //--------remove temp
-            fs.rmdirSync(`${tempdirectory}/${itemName}`, { recursive: true })
-            fs.unlinkSync(`${rawdirectory}/${itemName.slice(0,itemName.lastIndexOf('.'))}.jpg`)
-            //---------!------
-            processingJobList.splice(0,1)
-            activeProcessingJob = false;
+                let saveVal = {
+                  "Category"    :processingJobList[0].category,
+                  "pricingTier" :processingJobList[0].pricing,
+                  "Meta"        :processingJobList[0].meta
+                }
+                fs.writeFileSync(pendingPrefix + '.txt', JSON.stringify(saveVal), 'utf-8');
+                
+                //-----------upload
+                if (!fs.existsSync(uploadCatDir))
+                      fs.mkdirSync(uploadCatDir)
+                if (!fs.existsSync(uploadTitleDir))
+                      fs.mkdirSync(uploadTitleDir)
+                if (!fs.existsSync(`${uploadTitleDir}/${uploadDateDir}`))
+                      fs.mkdirSync(`${uploadTitleDir}/${uploadDateDir}`)
+                
+                
+                fs.renameSync(`${sourcePath}`,`${uploadPrefix}.mp4`)
+                fs.copyFileSync(pendingPrefix + '.txt',`${uploadPrefix}.txt`)
+                //--------remove temp
+                fs.rmdirSync(`${tempdirectory}/${itemName}`, { recursive: true })
+                fs.unlinkSync(`${rawdirectory}/${itemName.slice(0,itemName.lastIndexOf('.'))}.jpg`)
+                //---------!------
+                processingJobList.splice(0,1)
+                activeProcessingJob = false;
 
-            mainWindow.webContents.send('rawVideoChanged',"Ok")
+                mainWindow.webContents.send('rawVideoChanged',"Ok")
+              })
             })
           })
           
@@ -601,6 +651,9 @@ setInterval(function(){
           return conn.put(`${pendingdirectory}/${name}.gif`,`${tpath}/${name}.gif`)
         })
         .then(()=>{
+          return conn.put(`${pendingdirectory}/${name}.gif`,`${tpath}/${name}_origin.gif`)
+        })
+        .then(()=>{
           return conn.put(`${pendingdirectory}/${name}_shot.jpg`,`${tpath}/${name}_shot.jpg`)
         })
         .then(()=>{
@@ -619,10 +672,13 @@ setInterval(function(){
                   if(jer) throw jer
                   fs.unlink(`${pendingdirectory}/${name}.gif`,function(ger){
                     if(ger) throw ger
-                    fs.unlink(`${pendingdirectory}/${name}_shot.jpg`,function(ser){
-                      if(ser) throw ser
-                      activeUploadJob = false
-                      console.log('success')
+                    fs.unlink(`${pendingdirectory}/${name}_origin.gif`,function(orierr){
+                      if(orierr) throw orierr
+                      fs.unlink(`${pendingdirectory}/${name}_shot.jpg`,function(ser){
+                        if(ser) throw ser
+                        activeUploadJob = false
+                        console.log('success')
+                      })
                     })
                   })
                 })

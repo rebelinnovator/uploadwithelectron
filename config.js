@@ -14,6 +14,7 @@ module.exports = {
         'pos'   :0.8
     },
     'new-width'     :260,
+    'ori-gif-width' :260,
     'gif'           :{
         'secnt' :5,
         'selen' :3
