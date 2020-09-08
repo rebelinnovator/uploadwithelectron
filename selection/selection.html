@@ -1,0 +1,95 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <style>
+            .videoitem {
+                margin:30px;
+                width: 200px;
+                height: 200px;
+                box-shadow: 0px 0px 2px 2px black;
+            }
+            .videoitem:hover{
+                box-shadow: 0px 0px 3px 3px red;
+            }
+            .disable{
+               opacity: 0.4;
+            }
+            .disable:hover{
+                opacity: 0.4;
+            }
+            .footer {
+                position: fixed;
+                bottom: 0;
+                height: 40px;
+                width: 100%;
+                background-color: #adbcf1;
+                border-top: 3px solid #F37A1D;  
+            }
+        </style>
+    </head>
+
+    <body>
+  
+        <div class="container">
+            <div class="row mb-5">
+                <div class="d-flex flex-wrap" id='videoContainer'>
+<!-- 
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div>
+                    <div class='m-1' style='width:100px;height:100px;background:black;'>asdfasdf</div> -->
+
+
+                </div>
+            </div>
+            <div class="row">
+            
+            </div>
+        </div>
+        <div class="footer">
+            <div class='d-flex justify-content-around'>
+                <div class='d-flex justify-content-center'>
+                    <div>
+                    Num in process queue:
+                    </div>
+                    <div id="processcnt">
+                        0
+                    </div>
+                </div>
+                <div class='d-flex justify-content-center'>
+                    <div>
+                    Num in upload queue:
+                    </div>
+                    <div id="uploadcnt">
+                        0
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    
+    <script src="selection.js"></script>
+
+    <script>if (window.module) module = window.module;</script>
+
+    
+    
+</html>

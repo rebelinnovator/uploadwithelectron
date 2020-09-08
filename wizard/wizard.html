@@ -1,0 +1,112 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <style>
+          #tileimg{
+            box-shadow: 0px 0px 1px 1px red;
+          }
+          /*
+          #meta a{
+            background-color: #bdddff;
+            color: black!important;
+          }
+          */
+          .select{
+            background-color: #007bff;
+            color: white!important;
+          }
+          .select:hover{
+            color: black!important;
+          }
+          .footer {
+                position: fixed;
+                bottom: 0;
+                height: 40px;
+                width: 100%;
+                background-color: #adbcf1;
+                
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-6">
+                    <form>
+                        <div class="form-group">
+                          <label for="title">Title:</label>
+                          <input type="text" class="form-control" placeholder="title" id="title">
+                        </div>
+                        <div class="form-group d-flex">
+                          <label class="m-1"  for="date">Date:</label>
+                          <input type="date" class="form-control" id="date">
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category:</label>
+                            <select class="form-control" id="category">
+                            
+                            </select>
+                            
+                        </div>
+                        <div class="form-group">
+                            <label for="tier">Pricing Tier:</label>
+                            <select class="form-control" id="tier">
+                            
+                            </select>
+                        </div>
+                        <button id='openCropper' class="p-2 btn btn-primary btn-block">Open Cropper</button>
+                        <div class="pt-2 form-group">
+                          <label for="meta">Select Meta Tags:</label>
+                          
+                          <select multiple class="form-control" id="meta" style="overflow-y: auto;height: 400px;">
+                          </select>
+                        </div>
+                        <button class="p-2 btn btn-primary btn-block" id='reload'>Reload Tags</button>
+                       
+                        <button class="p-2 btn btn-primary btn-block" id='push'>Push Queue</button>
+                      </form>
+                </div>
+                <div class="col-6 text-center">
+                 
+                  <button class="m-3 btn btn-primary btn-block" id="play">Play Video</button>
+              
+                  <div class="m-3" id='tileimg' style=' width: 100%;background:white;'>
+                    Loading...
+                  </div>
+                 
+                  <button class='m-3 btn btn-primary btn-block' id='back'>Back To Selection</button>
+                </div>
+            
+            </div>
+        </div>
+        <div class="footer">
+          <div class='d-flex justify-content-around'>
+              <div class='d-flex justify-content-center'>
+                  <div>
+                  Num in process queue:
+                  </div>
+                  <div id="processcnt">
+                      0
+                  </div>
+              </div>
+              <div class='d-flex justify-content-center'>
+                  <div>
+                  Num in upload queue:
+                  </div>
+                  <div id="uploadcnt">
+                      0
+                  </div>
+              </div>
+          </div>
+      </div>
+    </body>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="wizard.js"></script>
+    <script>if (window.module) module = window.module;</script>
+
+</html>
